@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "992892545100",
+    "project_id": "moonlangdictionary",
+    "storage_bucket": "moonlangdictionary.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992892545100:android:3e1f6f0f418d1477b06ce9",
+        "android_client_info": {
+          "package_name": "com.example.moonlang_dictionary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgNPAYDF-AoGe_ppWytKh-DNPkfmcpsA4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
