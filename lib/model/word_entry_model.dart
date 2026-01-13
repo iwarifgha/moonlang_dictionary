@@ -1,21 +1,21 @@
 class WordEntryModel {
   final String? id;
-  final String? lemma;
-  final List<Senses>? senses;
-  const WordEntryModel({this.id, this.lemma, this.senses});
-  WordEntryModel copyWith({String? id, String? lemma, List<Senses>? senses}) {
+  final String? rootWord;
+  final List<MeaningModel>? meanings;
+  const WordEntryModel({this.id, this.rootWord, this.meanings});
+  WordEntryModel copyWith({String? id, String? lemma, List<MeaningModel>? senses}) {
     return WordEntryModel(
       id: id ?? this.id,
-      lemma: lemma ?? this.lemma,
-      senses: senses ?? this.senses,
+      rootWord: lemma ?? this.rootWord,
+      meanings: senses ?? this.meanings,
     );
   }
 
   Map<String, Object?> toJson() {
     return {
       'id': id,
-      'lemma': lemma,
-      'senses': senses
+      'lemma': rootWord,
+      'senses': meanings
           ?.map<Map<String, dynamic>>((data) => data.toJson())
           .toList(),
     };
@@ -24,12 +24,12 @@ class WordEntryModel {
   static WordEntryModel fromJson(Map<String, Object?> json) {
     return WordEntryModel(
       id: json['id'] == null ? null : json['id'] as String,
-      lemma: json['lemma'] == null ? null : json['lemma'] as String,
-      senses: json['senses'] == null
+      rootWord: json['lemma'] == null ? null : json['lemma'] as String,
+      meanings: json['senses'] == null
           ? null
           : (json['senses'] as List)
-                .map<Senses>(
-                  (data) => Senses.fromJson(data as Map<String, Object?>),
+                .map<MeaningModel>(
+                  (data) => MeaningModel.fromJson(data as Map<String, Object?>),
                 )
                 .toList(),
     );
@@ -39,8 +39,8 @@ class WordEntryModel {
   String toString() {
     return '''WordEntryModel(
                 id:$id,
-lemma:$lemma,
-senses:${senses.toString()}
+lemma:$rootWord,
+senses:${meanings.toString()}
     ) ''';
   }
 
@@ -49,40 +49,40 @@ senses:${senses.toString()}
     return other is WordEntryModel &&
         other.runtimeType == runtimeType &&
         other.id == id &&
-        other.lemma == lemma &&
-        other.senses == senses;
+        other.rootWord == rootWord &&
+        other.meanings == meanings;
   }
 
   @override
   int get hashCode {
-    return Object.hash(runtimeType, id, lemma, senses);
+    return Object.hash(runtimeType, id, rootWord, meanings);
   }
 }
 
-class Senses {
+class MeaningModel {
   final String? pos;
   final String? definition;
-  final String? tone;
+  final String? example;
   final String? pronunciation;
   final List<Variants>? variants;
-  const Senses({
+  const MeaningModel({
     this.pos,
     this.definition,
-    this.tone,
+    this.example,
     this.pronunciation,
     this.variants,
   });
-  Senses copyWith({
+  MeaningModel copyWith({
     String? pos,
     String? definition,
     String? tone,
     String? pronunciation,
     List<Variants>? variants,
   }) {
-    return Senses(
+    return MeaningModel(
       pos: pos ?? this.pos,
       definition: definition ?? this.definition,
-      tone: tone ?? this.tone,
+      example: tone ?? this.example,
       pronunciation: pronunciation ?? this.pronunciation,
       variants: variants ?? this.variants,
     );
@@ -92,7 +92,7 @@ class Senses {
     return {
       'pos': pos,
       'definition': definition,
-      'tone': tone,
+      'tone': example,
       'pronunciation': pronunciation,
       'variants': variants
           ?.map<Map<String, dynamic>>((data) => data.toJson())
@@ -100,13 +100,13 @@ class Senses {
     };
   }
 
-  static Senses fromJson(Map<String, Object?> json) {
-    return Senses(
+  static MeaningModel fromJson(Map<String, Object?> json) {
+    return MeaningModel(
       pos: json['pos'] == null ? null : json['pos'] as String,
       definition: json['definition'] == null
           ? null
           : json['definition'] as String,
-      tone: json['tone'] == null ? null : json['tone'] as String,
+      example: json['tone'] == null ? null : json['tone'] as String,
       pronunciation: json['pronunciation'] == null
           ? null
           : json['pronunciation'] as String,
@@ -125,7 +125,7 @@ class Senses {
     return '''Senses(
                 pos:$pos,
 definition:$definition,
-tone:$tone,
+tone:$example,
 pronunciation:$pronunciation,
 variants:${variants.toString()}
     ) ''';
@@ -133,11 +133,11 @@ variants:${variants.toString()}
 
   @override
   bool operator ==(Object other) {
-    return other is Senses &&
+    return other is MeaningModel &&
         other.runtimeType == runtimeType &&
         other.pos == pos &&
         other.definition == definition &&
-        other.tone == tone &&
+        other.example == example &&
         other.pronunciation == pronunciation &&
         other.variants == variants;
   }
@@ -148,7 +148,7 @@ variants:${variants.toString()}
       runtimeType,
       pos,
       definition,
-      tone,
+      example,
       pronunciation,
       variants,
     );
