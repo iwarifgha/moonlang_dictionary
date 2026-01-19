@@ -1,21 +1,29 @@
+import 'package:uuid/uuid.dart';
+
+final _uuid = Uuid();
+
 class WordEntryModel {
   final String? id;
-  final String? rootWord;
-  final List<MeaningModel>? meanings;
-  const WordEntryModel({this.id, this.rootWord, this.meanings});
-  WordEntryModel copyWith({String? id, String? lemma, List<MeaningModel>? senses}) {
+  final String? baseForm;
+  final List<Meanings>? meanings;
+  const WordEntryModel({this.id, this.baseForm, this.meanings});
+  WordEntryModel copyWith({
+    String? id,
+    String? baseForm,
+    List<Meanings>? meanings,
+  }) {
     return WordEntryModel(
       id: id ?? this.id,
-      rootWord: lemma ?? this.rootWord,
-      meanings: senses ?? this.meanings,
+      baseForm: baseForm ?? this.baseForm,
+      meanings: meanings ?? this.meanings,
     );
   }
 
   Map<String, Object?> toJson() {
     return {
       'id': id,
-      'lemma': rootWord,
-      'senses': meanings
+      'base_form': baseForm,
+      'meanings': meanings
           ?.map<Map<String, dynamic>>((data) => data.toJson())
           .toList(),
     };
@@ -24,65 +32,50 @@ class WordEntryModel {
   static WordEntryModel fromJson(Map<String, Object?> json) {
     return WordEntryModel(
       id: json['id'] == null ? null : json['id'] as String,
-      rootWord: json['lemma'] == null ? null : json['lemma'] as String,
-      meanings: json['senses'] == null
+      baseForm: json['base_form'] == null ? null : json['base_form'] as String,
+      meanings: json['meanings'] == null
           ? null
-          : (json['senses'] as List)
-                .map<MeaningModel>(
-                  (data) => MeaningModel.fromJson(data as Map<String, Object?>),
+          : (json['meanings'] as List)
+                .map<Meanings>(
+                  (data) => Meanings.fromJson(data as Map<String, Object?>),
                 )
                 .toList(),
     );
   }
 
-  @override
-  String toString() {
-    return '''WordEntryModel(
-                id:$id,
-lemma:$rootWord,
-senses:${meanings.toString()}
-    ) ''';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is WordEntryModel &&
-        other.runtimeType == runtimeType &&
-        other.id == id &&
-        other.rootWord == rootWord &&
-        other.meanings == meanings;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(runtimeType, id, rootWord, meanings);
-  }
+  factory WordEntryModel.empty() =>
+      WordEntryModel(id: _uuid.v4(), baseForm: '', meanings: []);
 }
 
-class MeaningModel {
-  final String? pos;
+class Meanings {
+  final String id;
+  final String? partOfSpeech;
   final String? definition;
-  final String? example;
+  final String? tone;
   final String? pronunciation;
   final List<Variants>? variants;
-  const MeaningModel({
-    this.pos,
+  Meanings({
+    String? id,
+    this.partOfSpeech,
     this.definition,
-    this.example,
+    this.tone,
     this.pronunciation,
     this.variants,
-  });
-  MeaningModel copyWith({
-    String? pos,
+  }) : id = _uuid.v4();
+
+  Meanings copyWith({
+    String? id,
+    String? partOfSpeech,
     String? definition,
     String? tone,
     String? pronunciation,
     List<Variants>? variants,
   }) {
-    return MeaningModel(
-      pos: pos ?? this.pos,
+    return Meanings(
+      id: id,
+      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
       definition: definition ?? this.definition,
-      example: tone ?? this.example,
+      tone: tone ?? this.tone,
       pronunciation: pronunciation ?? this.pronunciation,
       variants: variants ?? this.variants,
     );
@@ -90,9 +83,9 @@ class MeaningModel {
 
   Map<String, Object?> toJson() {
     return {
-      'pos': pos,
+      'category': partOfSpeech,
       'definition': definition,
-      'tone': example,
+      'tone': tone,
       'pronunciation': pronunciation,
       'variants': variants
           ?.map<Map<String, dynamic>>((data) => data.toJson())
@@ -100,13 +93,15 @@ class MeaningModel {
     };
   }
 
-  static MeaningModel fromJson(Map<String, Object?> json) {
-    return MeaningModel(
-      pos: json['pos'] == null ? null : json['pos'] as String,
+  static Meanings fromJson(Map<String, Object?> json) {
+    return Meanings(
+      partOfSpeech: json['category'] == null
+          ? null
+          : json['category'] as String,
       definition: json['definition'] == null
           ? null
           : json['definition'] as String,
-      example: json['tone'] == null ? null : json['tone'] as String,
+      tone: json['tone'] == null ? null : json['tone'] as String,
       pronunciation: json['pronunciation'] == null
           ? null
           : json['pronunciation'] as String,
@@ -120,65 +115,30 @@ class MeaningModel {
     );
   }
 
-  @override
-  String toString() {
-    return '''Senses(
-                pos:$pos,
-definition:$definition,
-tone:$example,
-pronunciation:$pronunciation,
-variants:${variants.toString()}
-    ) ''';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is MeaningModel &&
-        other.runtimeType == runtimeType &&
-        other.pos == pos &&
-        other.definition == definition &&
-        other.example == example &&
-        other.pronunciation == pronunciation &&
-        other.variants == variants;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(
-      runtimeType,
-      pos,
-      definition,
-      example,
-      pronunciation,
-      variants,
-    );
-  }
+  factory Meanings.empty() => Meanings(
+    partOfSpeech: '',
+    definition: '',
+    tone: '',
+    pronunciation: '',
+    variants: [],
+  );
 }
 
 class Variants {
   final String? form;
   final String? region;
-  final String? tribe;
   final String? tone;
   final String? pronunciation;
-  const Variants({
-    this.form,
-    this.region,
-    this.tribe,
-    this.tone,
-    this.pronunciation,
-  });
+  const Variants({this.form, this.region, this.tone, this.pronunciation});
   Variants copyWith({
     String? form,
     String? region,
-    String? tribe,
     String? tone,
     String? pronunciation,
   }) {
     return Variants(
       form: form ?? this.form,
       region: region ?? this.region,
-      tribe: tribe ?? this.tribe,
       tone: tone ?? this.tone,
       pronunciation: pronunciation ?? this.pronunciation,
     );
@@ -188,7 +148,6 @@ class Variants {
     return {
       'form': form,
       'region': region,
-      'tribe': tribe,
       'tone': tone,
       'pronunciation': pronunciation,
     };
@@ -198,7 +157,6 @@ class Variants {
     return Variants(
       form: json['form'] == null ? null : json['form'] as String,
       region: json['region'] == null ? null : json['region'] as String,
-      tribe: json['tribe'] == null ? null : json['tribe'] as String,
       tone: json['tone'] == null ? null : json['tone'] as String,
       pronunciation: json['pronunciation'] == null
           ? null
@@ -206,30 +164,6 @@ class Variants {
     );
   }
 
-  @override
-  String toString() {
-    return '''Variants(
-                form:$form,
-region:$region,
-tribe:$tribe,
-tone:$tone,
-pronunciation:$pronunciation
-    ) ''';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is Variants &&
-        other.runtimeType == runtimeType &&
-        other.form == form &&
-        other.region == region &&
-        other.tribe == tribe &&
-        other.tone == tone &&
-        other.pronunciation == pronunciation;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(runtimeType, form, region, tribe, tone, pronunciation);
-  }
+  factory Variants.empty() =>
+      Variants(form: '', region: '', tone: '', pronunciation: '');
 }

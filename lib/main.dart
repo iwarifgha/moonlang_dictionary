@@ -1,10 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:moonlang_dictionary/firebase_options.dart';
 import 'package:moonlang_dictionary/view/base/base_view_builder.dart';
 import 'package:moonlang_dictionary/view/home_view.dart';
 import 'package:moonlang_dictionary/view_model/theme_vm.dart';
  
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(ProviderScope(child: const MyApp()));
 }
 

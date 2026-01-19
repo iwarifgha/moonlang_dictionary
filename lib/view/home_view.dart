@@ -19,16 +19,11 @@ class AddWordScreen extends ConsumerWidget {
             title: const Text('Add Word'),
             actions: [
               IconButton(
-                icon: const Icon(Icons.save),
+                icon: wordVm.isLoading
+                    ? CircularProgressIndicator()
+                    : Icon(Icons.check),
                 onPressed: () {
-                  // if (_isValid(word)) {
-                  //   // debugPrint(wordToJson(word));
-                  //   // Navigator.pop(context);
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(content: Text('Incomplete word entry')),
-                  //   );
-                  // }
+                  wordVm.addWord();
                 },
               ),
             ],
@@ -46,14 +41,14 @@ class AddWordScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               ...List.generate(
                 wordVm.meanings.length,
-                (i) => SenseEditor(index: i),
+                (i) => MeaningEditor(index: i, () {}),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 icon: const Icon(Icons.add),
                 label: const Text('Add Meaning'),
                 onPressed: () {
-                  //add meaning
+                  wordVm.addMeaning();
                 },
               ),
             ],
@@ -64,9 +59,10 @@ class AddWordScreen extends ConsumerWidget {
   }
 }
 
-class SenseEditor extends ConsumerWidget {
+class MeaningEditor extends ConsumerWidget {
   final int index;
-  const SenseEditor({required this.index, super.key});
+  final VoidCallback onTap;
+  const MeaningEditor(this.onTap, {required this.index, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -79,80 +75,88 @@ class SenseEditor extends ConsumerWidget {
         final meaning = wVm.meanings[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
-          child: ExpansionTile(
-            title: Text(
-              (meaning.definition ?? '').isEmpty
-                  ? 'Meaning ${index + 1}'
-                  : '${meaning.pos} — ${meaning.definition}',
-            ),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: (meaning.pos ?? '').isEmpty ? null : meaning.pos,
-                      decoration: const InputDecoration(
-                        labelText: 'Part of Speech',
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'noun', child: Text('Noun')),
-                        DropdownMenuItem(value: 'verb', child: Text('Verb')),
-                        DropdownMenuItem(
-                          value: 'adj',
-                          child: Text('Adjective'),
-                        ),
-                      ],
-                      onChanged: (v) =>
-                          wVm.updateMeaning(index, meaning.copyWith(pos: v)),
-                    ),
-                    TextFormField(
-                      initialValue: meaning.definition,
-                      decoration: const InputDecoration(
-                        labelText: 'Definition',
-                      ),
-                      onChanged: (v) => wVm.updateMeaning(
-                        index,
-                        meaning.copyWith(definition: v),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: meaning.example,
-                      decoration: const InputDecoration(labelText: 'Example'),
-                      onChanged: (v) =>
-                          wVm.updateMeaning(index, meaning.copyWith(tone: v)),
-                    ),
-                    TextFormField(
-                      initialValue: meaning.pronunciation,
-                      decoration: const InputDecoration(
-                        labelText: 'Pronunciation',
-                      ),
-                      onChanged: (v) => wVm.updateMeaning(
-                        index,
-                        meaning.copyWith(pronunciation: v),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ...List.generate(
-                      (meaning.variants ?? []).length,
-                      (i) => VariantEditor(senseIndex: index, variantIndex: i),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Variant'),
-                      onPressed: () {
-                        wVm.addVariant(index);
-                      },
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      label: const Text('Remove Sense'),
-                      onPressed: () => wVm.removeMeaning(index),
-                    ),
-                  ],
-                ),
+          child: GestureDetector(
+            onTap: onTap,
+            child: ExpansionTile(
+              title: Text(
+                (meaning.definition ?? '').isEmpty
+                    ? 'Meaning ${index + 1}'
+                    : '${meaning.partOfSpeech} — ${meaning.definition}',
               ),
-            ],
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      DropdownButtonFormField<String>(
+                        value: (meaning.partOfSpeech ?? '').isEmpty
+                            ? null
+                            : meaning.partOfSpeech,
+                        decoration: const InputDecoration(
+                          labelText: 'Part of Speech',
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'noun', child: Text('Noun')),
+                          DropdownMenuItem(value: 'verb', child: Text('Verb')),
+                          DropdownMenuItem(
+                            value: 'adj',
+                            child: Text('Adjective'),
+                          ),
+                        ],
+                        onChanged: (v) => wVm.updateMeaning(
+                          index,
+                          meaning.copyWith(partOfSpeech: v),
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: meaning.definition,
+                        decoration: const InputDecoration(
+                          labelText: 'Definition',
+                        ),
+                        onChanged: (v) => wVm.updateMeaning(
+                          index,
+                          meaning.copyWith(definition: v),
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: meaning.tone,
+                        decoration: const InputDecoration(labelText: 'Example'),
+                        onChanged: (v) =>
+                            wVm.updateMeaning(index, meaning.copyWith(tone: v)),
+                      ),
+                      TextFormField(
+                        initialValue: meaning.pronunciation,
+                        decoration: const InputDecoration(
+                          labelText: 'Pronunciation',
+                        ),
+                        onChanged: (v) => wVm.updateMeaning(
+                          index,
+                          meaning.copyWith(pronunciation: v),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...List.generate(
+                        (meaning.variants ?? []).length,
+                        (i) =>
+                            VariantEditor(meaningIndex: index, variantIndex: i),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Variant'),
+                        onPressed: () {
+                          wVm.addVariant(index);
+                        },
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        label: const Text('Remove Meaning'),
+                        onPressed: () => wVm.removeMeaning(wVm.meanings[index]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -161,11 +165,11 @@ class SenseEditor extends ConsumerWidget {
 }
 
 class VariantEditor extends ConsumerWidget {
-  final int senseIndex;
+  final int meaningIndex;
   final int variantIndex;
 
   const VariantEditor({
-    required this.senseIndex,
+    required this.meaningIndex,
     required this.variantIndex,
     super.key,
   });
@@ -175,7 +179,7 @@ class VariantEditor extends ConsumerWidget {
     return BaseViewBuilder(
       provider: wordDraftProvider,
       builder: (context, state, wVm) {
-        final variant = wVm.meanings[senseIndex].variants?[variantIndex];
+        final variant = wVm.meanings[meaningIndex].variants?[variantIndex];
         return Card(
           color: Colors.grey.shade100,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -189,7 +193,7 @@ class VariantEditor extends ConsumerWidget {
                   onChanged: (v) {
                     final newVariant = variant?.copyWith(form: v);
                     if (newVariant != null) {
-                      wVm.updateVariant(senseIndex, variantIndex, newVariant);
+                      wVm.updateVariant(meaningIndex, variantIndex, newVariant);
                     }
                   },
                 ),
@@ -199,17 +203,17 @@ class VariantEditor extends ConsumerWidget {
                   onChanged: (v) {
                     final newVariant = variant?.copyWith(form: v);
                     if (newVariant != null) {
-                      wVm.updateVariant(senseIndex, variantIndex, newVariant);
+                      wVm.updateVariant(meaningIndex, variantIndex, newVariant);
                     }
                   },
                 ),
                 TextFormField(
-                  initialValue: variant?.tribe,
+                  initialValue: variant?.region,
                   decoration: const InputDecoration(labelText: 'Tribe'),
                   onChanged: (v) {
                     final newVariant = variant?.copyWith(form: v);
                     if (newVariant != null) {
-                      wVm.updateVariant(senseIndex, variantIndex, newVariant);
+                      wVm.updateVariant(meaningIndex, variantIndex, newVariant);
                     }
                   },
                 ),
@@ -219,7 +223,7 @@ class VariantEditor extends ConsumerWidget {
                   onChanged: (v) {
                     final newVariant = variant?.copyWith(form: v);
                     if (newVariant != null) {
-                      wVm.updateVariant(senseIndex, variantIndex, newVariant);
+                      wVm.updateVariant(meaningIndex, variantIndex, newVariant);
                     }
                   },
                 ),
@@ -229,7 +233,7 @@ class VariantEditor extends ConsumerWidget {
                   onChanged: (v) {
                     final newVariant = variant?.copyWith(form: v);
                     if (newVariant != null) {
-                      wVm.updateVariant(senseIndex, variantIndex, newVariant);
+                      wVm.updateVariant(meaningIndex, variantIndex, newVariant);
                     }
                   },
                 ),
