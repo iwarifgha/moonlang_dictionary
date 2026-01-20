@@ -46,19 +46,9 @@ class WordEntryVm extends BaseViewModel {
     word = WordEntryModel.empty();
   }
 
-  void addVariant(int meaningIndex) {
-    meanings[meaningIndex].variants?.add(Variants.empty());
-    setState();
-  }
-
-  updateVariant(int senseIndex, int variantIndex, Variants newVariant) {
-    word.meanings?[senseIndex].variants?[variantIndex] = newVariant;
-    setState();
-  }
-
   addWord(BuildContext context) async {
     isLoading = true;
-    setState(viewState: ViewState.busy);
+    setState();
     final newWord = word.copyWith(id: _uuid.v4());
     final result = await _wordEntryService.addWord(newWord);
     isLoading = false;
@@ -70,7 +60,7 @@ class WordEntryVm extends BaseViewModel {
         ),
       );
       resetData();
-      setState(viewState: ViewState.done);
+      setState();
     } else if (result is Failure<WordEntryModel>) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -78,8 +68,19 @@ class WordEntryVm extends BaseViewModel {
           backgroundColor: Colors.red,
         ),
       );
-      setState(viewState: ViewState.error);
+      setState();
     }
+  }
+
+  //-------
+  void addVariant(int meaningIndex) {
+    meanings[meaningIndex].variants?.add(Variants.empty());
+    setState();
+  }
+
+  updateVariant(int senseIndex, int variantIndex, Variants newVariant) {
+    word.meanings?[senseIndex].variants?[variantIndex] = newVariant;
+    setState();
   }
 }
 

@@ -2,8 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moonlang_dictionary/firebase_options.dart';
+import 'package:moonlang_dictionary/routes.dart';
+import 'package:moonlang_dictionary/view/all_words_view.dart';
 import 'package:moonlang_dictionary/view/base/base_view_builder.dart';
-import 'package:moonlang_dictionary/view/home_view.dart';
+import 'package:moonlang_dictionary/view/add_word_view.dart';
 import 'package:moonlang_dictionary/view_model/theme_vm.dart';
  
 Future<void> main() async {
@@ -26,6 +28,7 @@ class MyApp extends ConsumerWidget {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: themeVm.getTheme,
+          routes: routes,
           home: const MyHomePage(title: 'Flutter Demo Home Page'),
         );
       },
@@ -46,6 +49,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     //return HomeView();
-     return AddWordScreen();
+     return AllWordsScreen();
   }
 }
