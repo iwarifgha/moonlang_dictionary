@@ -4,17 +4,33 @@ import 'package:moonlang_dictionary/model/base/base_response_model.dart';
 abstract class BaseFirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// CRUD: CREATE / SET
-  Future<ApiResponse<bool>> setDocument({
+  // /// CRUD: CREATE / SET
+  // Future<ApiResponse<bool>> setDocument({
+  //   required String collection,
+  //   required String docId,
+  //   required Map<String, dynamic> data,
+  // }) async {
+  //   try {
+  //     await _db
+  //         .collection(collection)
+  //         .doc(docId)
+  //         .set(data, SetOptions(merge: true));
+  //     return const Success(true);
+  //   } catch (e) {
+  //     return Failure("Firestore Write Error", exception: e);
+  //   }
+  // }
+
+  Future<ApiResponse<Map<String, dynamic>>> addDocument({
     required String collection,
-    required String docId,
     required Map<String, dynamic> data,
   }) async {
     try {
-      await _db.collection(collection).doc(docId).set(data, SetOptions(merge: true));
-      return const Success(true);
+      final docRef = await _db.collection(collection).add(data);
+      final doc = await docRef.get();
+      return Success(doc.data());
     } catch (e) {
-      return Failure("Firestore Write Error", exception: e);
+      return Failure( exception: e);
     }
   }
 
@@ -28,9 +44,9 @@ abstract class BaseFirestoreService {
       if (doc.exists && doc.data() != null) {
         return Success(doc.data()!);
       }
-      return const Failure("Document not found");
+      return const Failure(exception: "Document not found");
     } catch (e) {
-      return Failure("Firestore Read Error", exception: e);
+      return Failure( exception: e);
     }
   }
 
@@ -43,7 +59,7 @@ abstract class BaseFirestoreService {
       await _db.collection(collection).doc(docId).delete();
       return const Success(true);
     } catch (e) {
-      return Failure("Delete Failed", exception: e);
+      return Failure( exception: e);
     }
   }
 }

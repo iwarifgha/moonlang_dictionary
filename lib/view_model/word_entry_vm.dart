@@ -4,6 +4,7 @@ import 'package:moonlang_dictionary/model/base/base_response_model.dart';
 import 'package:moonlang_dictionary/model/word_entry_model.dart';
 import 'package:moonlang_dictionary/services/word_service.dart';
 import 'package:moonlang_dictionary/view_model/base/base_view_model.dart';
+import 'package:uuid/uuid.dart';
 
 class WordEntryVm extends BaseViewModel {
   WordEntryVm() : super(BaseViewModelState()) {
@@ -12,16 +13,37 @@ class WordEntryVm extends BaseViewModel {
 
   List<Meanings> get meanings => word.meanings ?? [];
   late WordEntryModel word;
-  final WordEntryService _wordEntryService = WordEntryService();
+  final _uuid = Uuid();
+  bool isLoading = false;
 
-  void addMeaning() {
-    meanings.add(Meanings.empty());
+  final WordEntryService _wordEntryService = WordEntryService();
+  TextEditingController rootWordController = TextEditingController();
+
+  void addBaseForm(String base) {
+    final newWord = word.copyWith(baseForm: base);
+    word = newWord;
     setState();
   }
 
-  updateMeaning(int index, Meanings newMeaning) {
+  void addMeaning() {
+    final meaning = Meanings.empty().copyWith(meaningId: _uuid.v4());
+    meanings.add(meaning);
+    setState();
+  }
+
+  void removeMeaning(Meanings val) {
+    word.meanings?.removeWhere((meaning) => val.meaningId == meaning.meaningId);
+    setState();
+  }
+
+  void updateMeaning(int index, Meanings newMeaning) {
     word.meanings?[index] = newMeaning;
     setState();
+  }
+
+  void resetData() {
+    rootWordController.clear();
+    word = WordEntryModel.empty();
   }
 
   void addVariant(int meaningIndex) {
@@ -34,38 +56,29 @@ class WordEntryVm extends BaseViewModel {
     setState();
   }
 
-  void removeMeaning(Meanings val) {
-    word.meanings?.removeWhere((meaning) => val.id == meaning.id);
-    // word.meanings?.removeAt(index);
-    setState();
-  }
-
-  bool isLoading = false;
-  addWord() {
+  addWord(BuildContext context) async {
     isLoading = true;
     setState(viewState: ViewState.busy);
-    final result = _wordEntryService.addWord(word);
-
-    if (result is Success) {
-      ScaffoldMessenger(
-        child: SnackBar(
-          content: Text('Success'),
+    final newWord = word.copyWith(id: _uuid.v4());
+    final result = await _wordEntryService.addWord(newWord);
+    isLoading = false;
+    if (result is Success<WordEntryModel>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message ?? 'Success'),
           backgroundColor: Colors.green,
         ),
       );
-      isLoading = false;
+      resetData();
       setState(viewState: ViewState.done);
-    } else if (result is Failure) {
-      //show error message
-      ScaffoldMessenger(
-        child: SnackBar(content: Text('Failure'), backgroundColor: Colors.red),
+    } else if (result is Failure<WordEntryModel>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception.toString()),
+          backgroundColor: Colors.red,
+        ),
       );
-      isLoading = false;
       setState(viewState: ViewState.error);
-    } else {
-      isLoading = false;
-      setState();
-      return;
     }
   }
 }

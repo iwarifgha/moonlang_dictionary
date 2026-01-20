@@ -19,12 +19,12 @@ abstract class BaseHttpService {
         return Success(decodedData);
       } else {
         return Failure(
-          "Server Error: ${response.statusCode}",
-          exception: response.body,
+          // "Server Error: ${response.statusCode}",
+          exception: response.statusCode,
         );
       }
     } catch (e) {
-      return Failure("Network Connection Error", exception: e);
+      return Failure(  exception: e);
     }
   }
 
@@ -63,17 +63,17 @@ abstract class BaseHttpService {
 
       return sendRequest(response: response);
     } catch (e) {
-      return Failure("Multipart Upload Failed", exception: e);
+      return Failure( exception: e);
     }
   }
 
   /// Common error wrapper
   ApiResponse<Map<String, dynamic>> _handleError(Object e) {
     if (e is SocketException) {
-      return Failure('Error');
+      return Failure(exception: e);
       // return ApiResponse.failure(NetworkFailure(message: 'No internet connection'));
     } else {
-      return Failure('errorMessage');
+      return Failure(exception: 'errorMessage');
       // return ApiResponse.failure(ResponseFormatError(error: e.toString()));
     }
   }

@@ -6,7 +6,6 @@ sealed class ApiResponse<T> {
 
 /// The state when the data is successfully fetched.
 class Success<T> extends ApiResponse<T> {
-  
   final String? message;
 
   const Success(super.data, {this.message});
@@ -14,10 +13,10 @@ class Success<T> extends ApiResponse<T> {
 
 /// The state when an error occurs (Network error, Firestore permission, etc.)
 class Failure<T> extends ApiResponse<T> {
-  final String errorMessage;
+   
   final dynamic exception;
 
-  const Failure(this.errorMessage, {this.exception}) : super(null);
+  const Failure( {this.exception}) : super(null);
 }
 
 // /// The state while waiting for the response.
@@ -25,16 +24,40 @@ class Failure<T> extends ApiResponse<T> {
 //   const Loading();
 // }
 
-extension ApiResponseMapTransformer on ApiResponse {
-  ApiResponse<E> transform<E>(
-    E Function(Map<String, dynamic> data) transformer, {
-    bool ignoreHasError = false,
-  }) {
+// extension ApiResponseMapTransformer on ApiResponse {
+//   ApiResponse<E> transform<E>(
+//     E Function(Map<String, dynamic> data) transformer,
+//   ) {
+//     try {
+//       final result = transformer(data);
+//       return Success(result);
+//     } catch (e) {
+//       return Failure('Error converting type');
+//     }
+//   }
+// }
+
+extension ApiResponseTransformer<T> on ApiResponse<T> {
+  ApiResponse<E> transform<E>(E Function(T data) mapper) {
+    // 1️⃣ Preserve failure
+    if (this is Failure<T>) {
+      final failure = this as Failure<T>;
+      return Failure<E>(
+        // failure.errorMessage,
+        exception: failure.exception,
+      );
+    }
+
+    // 2️⃣ Guard against null data
+    if (data == null) {
+      return Failure<E>(exception: 'No data to transform');
+    }
+
+    // 3️⃣ Transform success
     try {
-      final result = transformer(data);
-      return  Success(result);
-     } catch (e) {
-      return  Failure('Error converting type');
+      return Success<E>(mapper(data as T));
+    } catch (e) {
+      return Failure<E>(  exception: e);
     }
   }
 }

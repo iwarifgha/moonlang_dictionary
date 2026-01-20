@@ -1,12 +1,11 @@
 import 'package:uuid/uuid.dart';
 
-final _uuid = Uuid();
-
 class WordEntryModel {
   final String? id;
   final String? baseForm;
   final List<Meanings>? meanings;
   const WordEntryModel({this.id, this.baseForm, this.meanings});
+
   WordEntryModel copyWith({
     String? id,
     String? baseForm,
@@ -44,49 +43,50 @@ class WordEntryModel {
   }
 
   factory WordEntryModel.empty() =>
-      WordEntryModel(id: _uuid.v4(), baseForm: '', meanings: []);
+      WordEntryModel(id: '', baseForm: '', meanings: []);
 }
 
 class Meanings {
-  final String id;
+  final String? meaningId;
   final String? partOfSpeech;
   final String? definition;
-  final String? tone;
-  final String? pronunciation;
+  final String? example;
+  final String? exampleTranslation;
   final List<Variants>? variants;
   Meanings({
-    String? id,
+    this.meaningId,
     this.partOfSpeech,
     this.definition,
-    this.tone,
-    this.pronunciation,
+    this.example,
+    this.exampleTranslation,
     this.variants,
-  }) : id = _uuid.v4();
+  });
 
   Meanings copyWith({
-    String? id,
+    String? meaningId,
     String? partOfSpeech,
     String? definition,
-    String? tone,
-    String? pronunciation,
+    String? example,
+    String? exampleTranslation,
     List<Variants>? variants,
   }) {
     return Meanings(
-      id: id,
+      meaningId: meaningId ?? this.meaningId,
       partOfSpeech: partOfSpeech ?? this.partOfSpeech,
       definition: definition ?? this.definition,
-      tone: tone ?? this.tone,
-      pronunciation: pronunciation ?? this.pronunciation,
+      example: example ?? this.example,
+      exampleTranslation: exampleTranslation ?? this.exampleTranslation,
       variants: variants ?? this.variants,
     );
   }
 
   Map<String, Object?> toJson() {
     return {
-      'category': partOfSpeech,
+      'meaning_id': meaningId,
+      'part_of_speech': partOfSpeech,
       'definition': definition,
-      'tone': tone,
-      'pronunciation': pronunciation,
+      'example': example,
+      'example_translation': exampleTranslation,
       'variants': variants
           ?.map<Map<String, dynamic>>((data) => data.toJson())
           .toList(),
@@ -95,16 +95,19 @@ class Meanings {
 
   static Meanings fromJson(Map<String, Object?> json) {
     return Meanings(
-      partOfSpeech: json['category'] == null
+      meaningId: json['meaning_id'] == null
           ? null
-          : json['category'] as String,
+          : json['meaning_id'] as String,
+      partOfSpeech: json['part_of_speech'] == null
+          ? null
+          : json['part_of_speech'] as String,
       definition: json['definition'] == null
           ? null
           : json['definition'] as String,
-      tone: json['tone'] == null ? null : json['tone'] as String,
-      pronunciation: json['pronunciation'] == null
+      example: json['example'] == null ? null : json['example'] as String,
+      exampleTranslation: json['example_translation'] == null
           ? null
-          : json['pronunciation'] as String,
+          : json['example_translation'] as String,
       variants: json['variants'] == null
           ? null
           : (json['variants'] as List)
@@ -116,10 +119,11 @@ class Meanings {
   }
 
   factory Meanings.empty() => Meanings(
+    meaningId: '',
     partOfSpeech: '',
     definition: '',
-    tone: '',
-    pronunciation: '',
+    example: '',
+    exampleTranslation: '',
     variants: [],
   );
 }
