@@ -15,6 +15,7 @@ class WordEntryVm extends BaseViewModel {
   late WordEntryModel word;
   final _uuid = Uuid();
   bool isLoading = false;
+  List<WordEntryModel> listOfWords = [];
 
   final WordEntryService _wordEntryService = WordEntryService();
   TextEditingController rootWordController = TextEditingController();
@@ -69,6 +70,23 @@ class WordEntryVm extends BaseViewModel {
         ),
       );
       setState();
+    }
+  }
+
+  getWords(BuildContext context) async {
+    setState(viewState: ViewState.busy);
+    final result = await _wordEntryService.getWords();
+    if (result is Success<List<WordEntryModel>>) {
+      listOfWords = result.data ?? [];
+      setState(viewState: ViewState.done);
+    } else if (result is Failure<List<WordEntryModel>>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(viewState: ViewState.done);
     }
   }
 

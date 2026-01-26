@@ -35,7 +35,7 @@ abstract class BaseFirestoreService {
   }
 
   /// CRUD: READ (Single Document)
-  Future<ApiResponse<Map<String, dynamic>>> getDocument({
+  Future<ApiResponse<Map<String, dynamic>>> getSingleDocument({
     required String collection,
     required String docId,
   }) async {
@@ -50,6 +50,19 @@ abstract class BaseFirestoreService {
     }
   }
 
+Future<ApiResponse<List<Map<String, dynamic>>>> getDocuments({
+    required String collection,
+    
+  }) async {
+    try {
+      final snapshot = await _db.collection(collection).get();
+      final allData = snapshot.docs.map((doc) => doc.data()).toList();
+      return Success(allData);
+      // return const Failure(exception: "Document not found");
+    } catch (e) {
+      return Failure(exception: e);
+    }
+  }
   /// CRUD: DELETE
   Future<ApiResponse<bool>> deleteDocument({
     required String collection,

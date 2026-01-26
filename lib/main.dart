@@ -5,14 +5,11 @@ import 'package:moonlang_dictionary/firebase_options.dart';
 import 'package:moonlang_dictionary/routes.dart';
 import 'package:moonlang_dictionary/view/all_words_view.dart';
 import 'package:moonlang_dictionary/view/base/base_view_builder.dart';
-import 'package:moonlang_dictionary/view/add_word_view.dart';
 import 'package:moonlang_dictionary/view_model/theme_vm.dart';
- 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -29,26 +26,25 @@ class MyApp extends ConsumerWidget {
           title: 'Flutter Demo',
           theme: themeVm.getTheme,
           routes: routes,
-          home: const MyHomePage(title: 'Flutter Demo Home Page'),
+          debugShowCheckedModeBanner: false,
+          home: const AppRouter(),
         );
       },
     );
   }
 }
 
-class MyHomePage extends ConsumerStatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class AppRouter extends ConsumerStatefulWidget {
+  const AppRouter({super.key});
 
   @override
-  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+  ConsumerState<AppRouter> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends ConsumerState<MyHomePage> {
+class _MyHomePageState extends ConsumerState<AppRouter> {
   @override
   Widget build(BuildContext context) {
     //return HomeView();
-     return AllWordsScreen();
+    return AllWordsScreen();
   }
 }
