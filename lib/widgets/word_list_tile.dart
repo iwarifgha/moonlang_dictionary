@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moonlang_dictionary/model/word_entry_model.dart';
-
+import 'package:moonlang_dictionary/model/new_word_model.dart';
+ 
 class WordListTile extends StatelessWidget {
-  final WordEntryModel word;
+  final NewWordModel word;
   final VoidCallback onTap;
   const WordListTile({super.key, required this.word, required this.onTap});
 

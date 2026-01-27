@@ -23,7 +23,7 @@ class AddWordScreen extends ConsumerWidget {
                     ? CircularProgressIndicator()
                     : Icon(Icons.check),
                 onPressed: () {
-                  wordVm.addWord(context);
+                  wordVm.saveWord(context);
                 },
               ),
             ],

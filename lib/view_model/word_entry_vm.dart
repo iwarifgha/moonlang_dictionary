@@ -1,28 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:moonlang_dictionary/model/base/base_response_model.dart';
-import 'package:moonlang_dictionary/model/word_entry_model.dart';
+import 'package:moonlang_dictionary/model/new_word_model.dart';
 import 'package:moonlang_dictionary/services/word_service.dart';
 import 'package:moonlang_dictionary/view_model/base/base_view_model.dart';
 import 'package:uuid/uuid.dart';
 
 class WordEntryVm extends BaseViewModel {
   WordEntryVm() : super(BaseViewModelState()) {
-    word = WordEntryModel.empty();
+    word = NewWordModel.empty();
   }
 
   List<Meanings> get meanings => word.meanings ?? [];
-  late WordEntryModel word;
+  List<String> get variants => word.variants ?? [];
+
+  late NewWordModel word;
   final _uuid = Uuid();
   bool isLoading = false;
-  List<WordEntryModel> listOfWords = [];
+  List<NewWordModel> listOfWords = [];
 
   final WordEntryService _wordEntryService = WordEntryService();
   TextEditingController rootWordController = TextEditingController();
+  TextEditingController pronunciationController = TextEditingController();
+  TextEditingController toneController = TextEditingController();
 
-  void addBaseForm(String base) {
-    final newWord = word.copyWith(baseForm: base);
+  void addBaseForm(String text) {
+    final newWord = word.copyWith(baseForm: text);
     word = newWord;
+    setState();
+  }
+
+  void addPronunciation(String text) {
+    final newWord = word.copyWith(pronunciation: text);
+    word = newWord;
+    setState();
+  }
+
+  void addTone(String text) {
+    final newWord = word.copyWith(tone: text);
+    word = newWord;
+    setState();
+  }
+
+  void updateVariant({required String text, required int index}) {
+    word.variants?[index] = text;
+    setState();
+  }
+
+  void addVariant() {
+    variants.add('');
+    setState();
+  }
+
+  void removeVariant(int index) {
+    word.variants?.removeAt(index);
+    // word.meanings?.removeWhere((meaning) => val.meaningId == meaning.meaningId);
     setState();
   }
 
@@ -44,16 +76,19 @@ class WordEntryVm extends BaseViewModel {
 
   void resetData() {
     rootWordController.clear();
-    word = WordEntryModel.empty();
+    pronunciationController.clear();
+    toneController.clear();
+    word.meanings?.clear();
+    word.variants?.clear();
   }
 
-  addWord(BuildContext context) async {
+  saveWord(BuildContext context) async {
     isLoading = true;
     setState();
     final newWord = word.copyWith(id: _uuid.v4());
     final result = await _wordEntryService.addWord(newWord);
     isLoading = false;
-    if (result is Success<WordEntryModel>) {
+    if (result is Success<NewWordModel>) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.message ?? 'Success'),
@@ -62,7 +97,7 @@ class WordEntryVm extends BaseViewModel {
       );
       resetData();
       setState();
-    } else if (result is Failure<WordEntryModel>) {
+    } else if (result is Failure<NewWordModel>) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.exception.toString()),
@@ -76,10 +111,10 @@ class WordEntryVm extends BaseViewModel {
   getWords(BuildContext context) async {
     setState(viewState: ViewState.busy);
     final result = await _wordEntryService.getWords();
-    if (result is Success<List<WordEntryModel>>) {
+    if (result is Success<List<NewWordModel>>) {
       listOfWords = result.data ?? [];
       setState(viewState: ViewState.done);
-    } else if (result is Failure<List<WordEntryModel>>) {
+    } else if (result is Failure<List<NewWordModel>>) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.exception.toString()),
@@ -90,16 +125,16 @@ class WordEntryVm extends BaseViewModel {
     }
   }
 
-  //-------
-  void addVariant(int meaningIndex) {
-    meanings[meaningIndex].variants?.add(Variants.empty());
-    setState();
-  }
+  // //-------
+  // void addVariant(int meaningIndex) {
+  //   meanings[meaningIndex].variants?.add(Variants.empty());
+  //   setState();
+  // }
 
-  updateVariant(int senseIndex, int variantIndex, Variants newVariant) {
-    word.meanings?[senseIndex].variants?[variantIndex] = newVariant;
-    setState();
-  }
+  // updateVariant(int senseIndex, int variantIndex, Variants newVariant) {
+  //   word.meanings?[senseIndex].variants?[variantIndex] = newVariant;
+  //   setState();
+  // }
 }
 
 final wordDraftProvider =

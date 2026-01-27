@@ -65,21 +65,21 @@ class MeaningEditor extends ConsumerWidget {
                         ),
                       ),
                       TextFormField(
-                        initialValue: meaning.example,
+                        initialValue: meaning.exampleNative,
                         decoration: const InputDecoration(labelText: 'Example'),
                         onChanged: (v) => wVm.updateMeaning(
                           index,
-                          meaning.copyWith(example: v),
+                          meaning.copyWith(exampleNative: v),
                         ),
                       ),
                       TextFormField(
-                        initialValue: meaning.exampleTranslation,
+                        initialValue: meaning.exampleEnglish,
                         decoration: const InputDecoration(
                           labelText: 'English Translation',
                         ),
                         onChanged: (v) => wVm.updateMeaning(
                           index,
-                          meaning.copyWith(exampleTranslation: v),
+                          meaning.copyWith(exampleEnglish: v),
                         ),
                       ),
                       const SizedBox(height: 12),

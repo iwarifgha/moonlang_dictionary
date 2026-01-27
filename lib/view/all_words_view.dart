@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moonlang_dictionary/view/add_word_view.dart';
 import 'package:moonlang_dictionary/view/base/base_view_builder.dart';
+import 'package:moonlang_dictionary/view/new_add_word_view.dart';
 import 'package:moonlang_dictionary/view/word_detail_view.dart';
 import 'package:moonlang_dictionary/view_model/word_entry_vm.dart';
 import 'package:moonlang_dictionary/widgets/no_words_displayer.dart';
@@ -60,6 +61,7 @@ class _AllWordsScreenState extends ConsumerState<AllWordsScreen> {
                                 Navigator.pushNamed(
                                   context,
                                   WordDetailScreen.routeName,
+                                  arguments: wVm.listOfWords[index]
                                 );
                               },
                             );
@@ -70,7 +72,7 @@ class _AllWordsScreenState extends ConsumerState<AllWordsScreen> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              Navigator.pushNamed(context, AddWordScreen.routeName);
+              Navigator.pushNamed(context, NewAddWordScreen.routeName);
             },
             child: const Icon(Icons.add),
           ),
